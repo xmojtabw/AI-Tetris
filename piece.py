@@ -50,31 +50,31 @@ class Piece:
         return new_shape
     
     def _stick_to_corner(self,shape:list) -> list:
-        buttom_aligned_shape = [len(shape[0])*["."] for _ in range(len(shape))]
+        top_aligned_shape = [len(shape[0])*["."] for _ in range(len(shape))]
 
         # stick to buttom
         free_line_count = 0
-        for i in range (len(shape)-1,0,-1):
-            if not "X" in shape[i]:
+        for i in range (len(shape)):
+            if "X" not in shape[i]:
                 free_line_count+=1
             else:
                 break
 
         for i in range(len(shape)-free_line_count):
-            buttom_aligned_shape[i+free_line_count] = shape[i]
+            top_aligned_shape[i] = shape[i+free_line_count]
         
         # stick to left
         aligned_shape = [len(shape[0])*["."] for _ in range(len(shape))]
         free_line_count = 0 
-        for i in range(len(buttom_aligned_shape[0])):
-            if not "X" in [buttom_aligned_shape[j][i] for j in range(len(buttom_aligned_shape))]:
+        for i in range(len(top_aligned_shape[0])):
+            if "X" not in [top_aligned_shape[j][i] for j in range(len(top_aligned_shape))]:
                 free_line_count+=1
             else:
                 break
 
-        for i in range(len(buttom_aligned_shape[0])-free_line_count):
-            for j in range(len(buttom_aligned_shape)):
-                aligned_shape[j][i] = buttom_aligned_shape[j][i+free_line_count]
+        for i in range(len(top_aligned_shape[0])-free_line_count):
+            for j in range(len(top_aligned_shape)):
+                aligned_shape[j][i] = top_aligned_shape[j][i+free_line_count]
 
         return aligned_shape
 

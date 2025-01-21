@@ -1,7 +1,9 @@
 import pygame
+import pygame.examples
 from board import Board 
 # Initialize Pygame
 pygame.init()
+
 
 # Screen settings
 SCREEN_WIDTH, SCREEN_HEIGHT = 500, 600  # Full game window dimensions
@@ -10,8 +12,8 @@ SIDE_PANEL_WIDTH = SCREEN_WIDTH - BOARD_WIDTH  # Width of the side panel
 CELL_SIZE = 30  # Size of each block in pixels
 
 # Colors
-BOARD_X = 50
-BOARD_Y = 50
+# BOARD_X = 50
+# BOARD_Y = 50
 BLACK = (0, 0, 0)
 GRAY = (128,128,128)
 WHITE = (255, 255, 255)
@@ -36,14 +38,15 @@ def draw_side_panel(screen):
     pygame.draw.rect(screen, BLACK, (BOARD_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT))
 
 def draw_board(screen,board:Board):
+    reversed_board = board.board[::-1]
     for i in range(board.height):
         for j in range(board.width):
-            x = j * CELL_SIZE + BOARD_X
-            y = i * CELL_SIZE + BOARD_Y
-            if board.board[i][j]["fill"]:
+            x = j * CELL_SIZE 
+            y = i * CELL_SIZE 
+            if reversed_board[i][j]["fill"]:
                 pygame.draw.rect(
                     screen,
-                    board.board[i][j]["color"],
+                    reversed_board[i][j]["color"],
                     (x, y, CELL_SIZE, CELL_SIZE),
                 )
                 pygame.draw.rect(screen, BLACK, (x, y, CELL_SIZE, CELL_SIZE), 1)
@@ -79,6 +82,22 @@ def draw_board(screen,board:Board):
 #     ],
 # }
 
+# Draw the labels on the side panel
+def draw_labels(screen, labels):
+    # Title
+    # title_text = pygame.font.Font(None,20).render("Tetris", True, WHITE)
+    # screen.blit(title_text, (BOARD_WIDTH + 20, 20))
+
+    # Score
+    score_text = pygame.font.Font(None,20).render(f"Score: {labels['score']}", True, WHITE)
+    screen.blit(score_text, (BOARD_WIDTH + 20, 80))
+
+    # Additional Info
+    lines_text = pygame.font.Font(None,25).render(f"Lines Cleared: {labels['lines']}", True, WHITE)
+    screen.blit(lines_text, (BOARD_WIDTH + 20, 140))
+    # lines_value = pygame.font.Font(None,20).render("0", True, WHITE)  # Example value
+    # screen.blit(lines_value, (BOARD_WIDTH + 20, 180))
+
 # Draw the menu panel
 def draw_panel(screen):
     menu_rect = pygame.Rect(BOARD_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
@@ -89,6 +108,7 @@ def draw_panel(screen):
     font = pygame.font.Font(None, 36)
     text = font.render("Panel", True, WHITE)
     screen.blit(text, (BOARD_WIDTH + 10, 10))
+
 
 # Main game loop
 def display(board : Board):
@@ -106,6 +126,8 @@ def display(board : Board):
         draw_board(screen, board)
         # Draw the panel
         draw_panel(screen)
+        # Draw the labels
+        draw_labels(screen=screen, labels={"score": 0, "lines": 0})
 
         # Update the display
         pygame.display.flip()
