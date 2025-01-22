@@ -48,7 +48,8 @@ class Piece:
         return self.position
 
     def rotate(self, angle):
-        self.angle += angle % 4
+        self.angle += angle 
+        self.angle %= 4
         return self
 
     def _rotate(self, shape: list) -> list:

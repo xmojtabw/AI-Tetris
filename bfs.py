@@ -34,3 +34,16 @@ def BFS(problem):
                 frontier.put(child)
 
     return None
+
+def trace_back(node: Node) -> list:
+    answers = []
+    child = None
+    while node:
+        if child:
+            answers.append([node.state, child.action])
+        else:
+            answers.append([node.state, "answer"])
+
+        child = node
+        node = node.parent
+    return answers[::-1]
