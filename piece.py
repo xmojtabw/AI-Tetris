@@ -1,5 +1,6 @@
 import random
 
+
 class Piece:
     def __init__(
         self,
@@ -50,8 +51,12 @@ class Piece:
         return self.position
 
     def rotate(self, angle):
-        self.angle += angle 
+        self.angle += angle
         self.angle %= 4
+        if self.angle % 2:
+            self.position = (self.position[0] + self.h - self.w, self.position[1])
+        else:
+            self.position = (self.position[0] - self.h + self.w, self.position[1])
         return self
 
     def _rotate(self, shape: list) -> list:
@@ -106,6 +111,16 @@ class Piece:
         else:
             return (self.h, self.w)
 
+    def __eq__(self, other):
+        return True if  self.position==other.position and \
+                        self.shape == other.shape and \
+                        self.angle==other.angle and \
+                        self.color == other.color and \
+                        self.h == other.h and self.w == other.w \
+                        else False
+    def __hash__(self):
+        shape_t = tuple([tuple(_) for _  in self.get_shape()])
+        return hash((self.position, shape_t, self.angle, self.color))
 
 class L_piece(Piece):
     def __init__(self, color="white", position=(0, 0), angle=0, h=2, w=3):
@@ -135,6 +150,11 @@ class I_piece(Piece):
         )
 
 
-# def piece_generator(count):
-#     for _ in range(count):
-#         r = 
+def PieceGenerator(count):
+    template_pieces = [I_piece, L_piece]
+    colors = ["blue", "red", "green", "yellow", "purple", "orange", "pink", "brown"]
+    for i in range(count):
+        r = random.randint(0, len(template_pieces) - 1)
+        color = random.randint(0, len(colors) - 1)
+        angle = random.randint(0, 3)
+        yield template_pieces[r](color=colors[color], angle=angle)

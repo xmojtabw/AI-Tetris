@@ -1,4 +1,5 @@
-from queue import Queue
+from queue import Queue , LifoQueue
+
 
 
 class Node:
@@ -34,6 +35,32 @@ def BFS(problem):
                 frontier.put(child)
 
     return None
+
+def is_cycle(node: Node) -> bool:
+    current = node #compare the node with all of it's parent
+    while current.parent is not None:
+        if current.parent.state == node.state:
+            return True
+        current = current.parent
+    return False
+
+def DLS(problem, limit=7):
+    node = Node(problem.initial)
+    frontier = LifoQueue()
+    frontier.put(node)
+    result = None
+    while not frontier.empty():
+        node = frontier.get()
+        if problem.is_goal(node.state):
+            return node
+        if node.depth >= limit:
+            result = "cut-off"
+
+        elif not is_cycle(node):
+            for child in expand(node=node, problem=problem):
+                frontier.put(child)
+
+    return result
 
 def trace_back(node: Node) -> list:
     answers = []
