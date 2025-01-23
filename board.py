@@ -3,7 +3,7 @@ from copy import deepcopy
 import bfs
 import random
 import errno
-
+from evaluation import Evaluation
 class Board:
     def __init__(self, width, height):
         self.width = width
@@ -50,6 +50,40 @@ class Board:
                 path = bfs.trace_back(node=ans)
                 self.add_piece(o)
                 return path
+
+    # def put_piece(self, piece: Piece, debug=False):
+    #     evaluator = Evaluation()
+    #     best_score = float('-inf')
+    #     best_path = None
+    #     best_option = None
+
+    #     for o in self.find_options(piece):
+    #         # Solve the problem of placing the piece using BFS
+    #         pp_problem = PuttingPiece(piece=o, board=self)
+    #         ans = bfs.BFS(problem=pp_problem)
+
+    #         # Trace back to get the path of the placement
+    #         path = bfs.trace_back(node=ans)
+
+    #         self.add_piece(o)
+    #         score = evaluator.evaluate(self)  # Evaluate the board state
+    #         self.remove_piece(o)  # Remove the piece after evaluation
+
+    #         if debug:
+    #             print(f"Option: {o}, Score: {score}")
+
+    #         # Keep track of the best scoring option
+    #         if score > best_score:
+    #             best_score = score
+    #             best_path = path
+    #             best_option = o
+
+    #     # If a best option is found, finalize the placement
+    #     if best_option:
+    #         self.add_piece(best_option)
+    #         return best_path
+
+    #     return None
 
     def find_options(self, piece: Piece):
         h = self.height - piece.get_size()[0]
