@@ -112,29 +112,30 @@ def draw_panel(screen):
 
 # Main game loop
 def display(board : Board):
-    running = True
+    quit = False
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            quit = True
 
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    # Clear the screen
+    screen.fill(GRAY)
 
-        # Clear the screen
-        screen.fill(GRAY)
+    # Draw the Tetris piece
+    draw_board(screen, board)
+    # Draw the panel
+    draw_panel(screen)
+    # Draw the labels
+    draw_labels(screen=screen, labels={"score": 0, "lines": 0})
 
-        # Draw the Tetris piece
-        draw_board(screen, board)
-        # Draw the panel
-        draw_panel(screen)
-        # Draw the labels
-        draw_labels(screen=screen, labels={"score": 0, "lines": 0})
+    # Update the display
+    pygame.display.flip()
 
-        # Update the display
-        pygame.display.flip()
-
-        # Control frame rate
-        clock.tick(30)
-
-    pygame.quit()
+    # Control frame rate
+    clock.tick(30)
+    if quit:
+        pygame.quit()
+        return False
+    else:
+        return True
 
 

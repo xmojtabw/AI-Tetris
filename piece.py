@@ -1,3 +1,5 @@
+import random
+
 class Piece:
     def __init__(
         self,
@@ -131,3 +133,8 @@ class I_piece(Piece):
             h=1,
             w=3,
         )
+
+
+# def piece_generator(count):
+#     for _ in range(count):
+#         r = 
