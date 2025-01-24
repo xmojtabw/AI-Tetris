@@ -65,3 +65,33 @@ class Agent():
     def run(self,count):
         self.genetic_algorithm(count)
         return self.best
+    
+    
+    def simulated_annealing(self, initial_individual, initial_temperature, cooling_rate, max_iterations):
+        current_individual = initial_individual
+        current_fitness = self.fitness(current_individual)
+        best_individual = current_individual
+        best_fitness = current_fitness
+        temperature = initial_temperature
+
+        for _ in range(max_iterations):
+            
+            neighbor = self.mutate(deepcopy(current_individual))
+            neighbor_fitness = self.fitness(neighbor)
+
+            if neighbor_fitness > current_fitness or r.random() < self.acceptance_probability(current_fitness, neighbor_fitness, temperature):
+                current_individual = neighbor
+                current_fitness = neighbor_fitness
+                
+                if current_fitness > best_fitness:
+                    best_individual = current_individual
+                    best_fitness = current_fitness
+
+            temperature *= cooling_rate
+
+        return best_individual
+
+    def acceptance_probability(self, current_fitness, neighbor_fitness, temperature):
+        if neighbor_fitness > current_fitness:
+            return 1.0
+        return r.exp((neighbor_fitness - current_fitness) / temperature)
