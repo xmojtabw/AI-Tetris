@@ -1,5 +1,5 @@
 from piece import Piece
-from copy import deepcopy
+from copy import deepcopy , copy
 import bfs
 import random
 import errno
@@ -114,6 +114,7 @@ class Board:
         b = self.board[::-1]
         for i in b:
             print("".join(["X" if j["fill"] else "." for j in i]))
+
     def has_space_to_rotate(self,x,y,h,w):
         try :
             for i in range(x, x + h):
@@ -125,7 +126,7 @@ class Board:
         return True
 
     def can_rotate(self, piece: Piece,r):
-        p = deepcopy(piece)
+        p = copy(piece)
         x, y = p.get_position()
         h, w = p.get_size()
         if h > w:
@@ -253,6 +254,11 @@ class Board:
         shape_t = tuple([tuple((cell["color"], cell["fill"]) for cell in row) for row in self.board])
         return hash(( shape_t, self.height,self.width))
 
+    def clean(self):
+        for i in range(self.height):
+            for j in range(self.width):
+                self.board[i][j] = {"color": "white", "fill": False}
+
 class PuttingPiece:
     def __init__(self, piece: Piece, board: Board, enable=True):
         self.piece = piece
@@ -264,23 +270,23 @@ class PuttingPiece:
     def is_goal(self, state: tuple[Piece, Board]):
         x, y = state[0].get_position()
         h, w = state[0].get_size()
-        p = deepcopy(state[0])
-        board = deepcopy(state[1])
+        p = copy(state[0])
+        #board = deepcopy(state[1])
         max_x = state[1].height
         #print("goal check: x,y,h,w", x, y, h, w)
         for i in range(x, max_x - h):  # could be better
             x = p.get_position()[0]
             p.set_position((x + 1, y))
-            if board.has_colision(piece=p):
+            if state[1].has_colision(piece=p):
                 return False
         else:
             return True
 
     def result(self, parent: bfs.Node, action):
-        tmp_piece = deepcopy(parent.state[0])
-        board = deepcopy(parent.state[1])  # change it later!
+        tmp_piece = copy(parent.state[0])
+        
         x, y = tmp_piece.get_position()
-        max_x, max_y = board.height, board.width
+        max_x, max_y = parent.state[1].height, parent.state[1].width
         if action == "down":
             tmp_piece.set_position((x + 1, y))
         elif action == "left":
@@ -288,12 +294,12 @@ class PuttingPiece:
         elif action == "right":
             tmp_piece.set_position((x, y + 1))
         elif action == "rotate to right":
-            if board.can_rotate(tmp_piece,1):
+            if parent.state[1].can_rotate(tmp_piece,1):
                 tmp_piece.rotate(1)
             else:
                 return None
         elif action == "rotate to left":
-            if board.can_rotate(tmp_piece,3):
+            if parent.state[1].can_rotate(tmp_piece,3):
                 tmp_piece.rotate(3)
             else:
                 return None
@@ -301,8 +307,8 @@ class PuttingPiece:
         h, w = tmp_piece.get_size()
         n_x, n_y = tmp_piece.get_position()
         if (n_x >= 0 and n_x + h < max_x) and (n_y >= 0 and n_y + w < max_y):
-            if not board.has_colision(tmp_piece):
-                next_state = (tmp_piece, board)
+            if not parent.state[1].has_colision(tmp_piece):
+                next_state = (tmp_piece, parent.state[1])
             else:
                 return None
         else:

@@ -1,5 +1,5 @@
 import random
-
+import copy
 
 class Piece:
     def __init__(
@@ -26,6 +26,26 @@ class Piece:
 
         self.shapes = [self._stick_to_corner(i) for i in self.shapes]
 
+    def __copy__(self):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        result.__dict__.update(self.__dict__)
+        result.position = self.position
+        result.h = self.h
+        result.w = self.w
+        result.angle = self.angle
+        return result
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            if k in ['position', 'h', 'w', 'angle']:
+                setattr(result, k, copy.deepcopy(v, memo))
+            else:
+                setattr(result, k, v)
+        return result
     def __str__(self):
         return f"{self.name} {self.color}"
 

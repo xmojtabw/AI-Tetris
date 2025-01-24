@@ -2,7 +2,7 @@ import board as B
 import piece as P
 import genetic as G 
 import evaluation as E
-from copy import deepcopy
+from copy import deepcopy, copy
 import random as r
 
 class Agent():
@@ -16,6 +16,7 @@ class Agent():
         self.mutation_rate = mutation_rate
         self.population = self._generate_population()
         self.best = None
+        self.ev = E.Evaluation()
         # # self.fitness = E.Fitness(self.board)
         # self.mutate = G.Mutate(self.board)
         # self.genetic = G.Genetic(self.population, self.fitness, self.mutate, self.mutation_rate)
@@ -25,16 +26,19 @@ class Agent():
 
     def fitness(self,individual):
         c = 0 
-        board = deepcopy(self.board)
-        for piece in individual:
-            if not board.put_piece(piece):
+        for p in individual:
+            piece = copy(p)
+            if not self.board.put_piece(piece):
                 break
             c+=1
-        return E.Evaluation.evaluate(board) * c
+        #return  c
+        v = self.ev.evaluate(self.board)
+        self.board.clean()
+        return (70 - v) * c
 
 
     def mutate(self,individual):
-        p = r.randint(0,len(individual))
+        p = r.randint(0,len(individual)-1)
         self.board.random_placement(individual[p].rotate(r.randint(0,3)))
         return individual
     
@@ -48,7 +52,7 @@ class Agent():
                 parent1 , parent2 = r.choices(self.population, weights=weights, k=2) # weghted random choice
                 child = self.crossover(parent1,parent2)
                 if r.random() < self.mutation_rate:
-                    child = self.mutate(child)
+                    self.mutate(child)
                 new_population.append(child)
                 # Check if this child is the best we've seen so far
                 child_fitness = self.fitness(child)
