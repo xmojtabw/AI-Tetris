@@ -44,7 +44,7 @@ class Board:
             empty_row = [{"color": "white", "fill": False} for _ in range(self.width)]
             new_rows = [empty_row] * rows_removed
 
-            self.board = new_rows + new_board
+            self.board = new_board + new_rows
             return rows_removed
 
     def remove_piece(self, piece: Piece):

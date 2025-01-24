@@ -94,7 +94,10 @@ def draw_labels(screen, labels):
 
     # Additional Info
     lines_text = pygame.font.Font(None,25).render(f"Lines Cleared: {labels['lines']}", True, WHITE)
-    screen.blit(lines_text, (BOARD_WIDTH + 20, 140))
+    screen.blit(lines_text, (BOARD_WIDTH + 20, 100))
+
+    lines_text = pygame.font.Font(None,25).render(f"Evaluation: {labels['eval']}", True, WHITE)
+    screen.blit(lines_text, (BOARD_WIDTH + 20, 120))
     # lines_value = pygame.font.Font(None,20).render("0", True, WHITE)  # Example value
     # screen.blit(lines_value, (BOARD_WIDTH + 20, 180))
 
@@ -111,7 +114,7 @@ def draw_panel(screen):
 
 
 # Main game loop
-def display(board : Board):
+def display(board : Board,labels):
     quit = False
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -125,7 +128,7 @@ def display(board : Board):
     # Draw the panel
     draw_panel(screen)
     # Draw the labels
-    draw_labels(screen=screen, labels={"score": 0, "lines": 0})
+    draw_labels(screen=screen, labels=labels)
 
     # Update the display
     pygame.display.flip()
