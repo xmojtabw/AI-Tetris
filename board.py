@@ -57,6 +57,11 @@ class Board:
                     self.board[i + x][j + y] = {"color": "white", "fill": False}
 
     def put_piece(self, piece: Piece, debug=False):
+        def check_for_line(x1,x2):
+            for i in range(x1,x2):
+                if all(cell["fill"] for cell in self.board[i]):
+                    return True
+            return False
         for o in self.find_options(piece):
             pp_problem = PuttingPiece(piece=o, board=self)
             ans = bfs.BFS(problem=pp_problem)
@@ -65,7 +70,8 @@ class Board:
             else:
                 path = bfs.trace_back(node=ans)
                 self.add_piece(o)
-                return path
+                c = check_for_line(o.get_position()[0],o.get_position()[0]+o.get_size()[0])
+                return path,c 
 
     # def put_piece(self, piece: Piece, debug=False):
     #     evaluator = Evaluation()
@@ -201,7 +207,7 @@ class Board:
         tmp_board = deepcopy(self)
         tmp_piece = deepcopy(piece)
         x , y = tmp_piece.get_position()
-        path = tmp_board.put_piece(tmp_piece)
+        path = tmp_board.put_piece(tmp_piece)[0]
         path = [p[1] for p in path ] # separating actions
         if not path:
             return False #can't put the new piece

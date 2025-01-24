@@ -50,7 +50,7 @@ main_board = Board(width=10, height=20)
 #pieces = [p1, p2, p3,pt, p4]  # , p5,p6,p7,pt]  # ,p4]
 #print(len(pieces))
 #pieces = [p1, p2, p3 , p4,p5]
-pieces = [p for p in piece.PieceGenerator(20)]
+pieces = [p for p in piece.PieceGenerator(5)]
 
 
 cleared_lines = 0
@@ -59,11 +59,11 @@ labels = {"score": 0, "lines": 0, "eval": 0}
 e = ev()
 ag = Agent(
     board_format=main_board,
-    population_size=70,
+    population_size=350,
     mutation_rate=0.01,
     answer_format=pieces,
 )
-ans = ag.run(50)
+ans = ag.run(40)
 if __name__ == "__main__":
     runnig = True
     while runnig:

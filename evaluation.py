@@ -3,18 +3,25 @@ class Evaluation:
         pass
 
     def evaluate(self, board):
-        aggregate_height = self.calculate_aggregate_height(board)
-        complete_lines = self.count_complete_lines(board)
-        holes = self.count_holes(board)
-        bumpiness = self.calculate_bumpiness(board)
+        # aggregate_height = self.calculate_aggregate_height(board)
+        # complete_lines = self.count_complete_lines(board)
+        # holes = self.count_holes(board)
+        # bumpiness = self.calculate_bumpiness(board)
+        tallest_height = self.calculate_most_height(board)
 
         return (
-            1.5 * complete_lines +  
-            -0.5 * aggregate_height +  
-            -0.7 * holes +  
-            -0.3 * bumpiness  
+            tallest_height
         )
 
+    def calculate_most_height(self, board):
+        """Calculate the height of the tallest column."""
+        h = board.height
+        for row in board.board:
+            if any(cell["fill"] for cell in row):  
+                h-=1
+            else:
+                break
+        return h
     def calculate_aggregate_height(self, board):
         """Calculate the sum of the heights of all columns."""
         heights = [self.get_column_height(board, col) for col in range(board.width)]
