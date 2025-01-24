@@ -3,18 +3,16 @@ class Evaluation:
         pass
 
     def evaluate(self, board):
-        
         aggregate_height = self.calculate_aggregate_height(board)
         complete_lines = self.count_complete_lines(board)
         holes = self.count_holes(board)
         bumpiness = self.calculate_bumpiness(board)
 
-        # Weighted evaluation
         return (
-            -0.510066 * aggregate_height +
-            0.760666 * complete_lines +
-            -0.35663 * holes +
-            -0.184483 * bumpiness
+            1.5 * complete_lines +  
+            -0.5 * aggregate_height +  
+            -0.7 * holes +  
+            -0.3 * bumpiness  
         )
 
     def calculate_aggregate_height(self, board):
@@ -23,20 +21,22 @@ class Evaluation:
         return sum(heights)
 
     def count_complete_lines(self, board):
+        """Count the number of complete rows."""
         complete_lines = 0
         for row in board.board:
-            if all(cell["fill"] for cell in row):
+            if all(cell["fill"] for cell in row):  
                 complete_lines += 1
         return complete_lines
 
     def count_holes(self, board):
+        """Count the number of empty spaces."""
         holes = 0
         for col in range(board.width):
             filled = False
             for row in board.board:
-                if row[col]["fill"]:
+                if row[col]["fill"]:  
                     filled = True
-                elif filled and not row[col]["fill"]:
+                elif filled and not row[col]["fill"]:  
                     holes += 1
         return holes
 
@@ -48,7 +48,7 @@ class Evaluation:
 
     def get_column_height(self, board, col):
         """Get the height of a specific column."""
-        for row_idx, row in enumerate(reversed(board.board)):
-            if row[col]["fill"]:
+        for row_idx, row in enumerate(reversed(board.board)):  
+            if row[col]["fill"]:  
                 return board.height - row_idx
         return 0
