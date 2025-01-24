@@ -186,6 +186,8 @@ class Board:
         x , y = tmp_piece.get_position()
         path = tmp_board.put_piece(tmp_piece)
         path = [p[1] for p in path ] # separating actions
+        if not path:
+            return False #can't put the new piece
         r_move = path.count("right")
         l_move = path.count("left")
         r_rotate = path.count("rotate to right")
