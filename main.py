@@ -47,9 +47,15 @@ main_board = Board(width=10, height=20)
 # pieces = [p1 ,p2] #,p3,p4]
 pieces = [p1, p4,p2, p3,pt]  # ,p4]
 # pieces = [p1, p2, p3 , p4,p5]
+cleared_lines = 0
 if __name__ == "__main__":
     runnig = True
     while runnig:
+        rows_cleared = main_board.clear_rows()
+        if rows_cleared > 0:
+            cleared_lines += 1
+            print(f"Removed {rows_cleared} completed rows.")
+            main_board.print_board()
         #for p in pieces:
         for p in piece.PieceGenerator(20):
             main_board.random_placement(p)
@@ -70,7 +76,8 @@ if __name__ == "__main__":
                 if not runnig:
                     exit(0)
             main_board.put_piece(p)
-
+            
         print("finished")
+        print("Count of cleared lines ",cleared_lines)
         while runnig:
             runnig = display.display(main_board)

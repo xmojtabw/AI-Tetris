@@ -31,6 +31,22 @@ class Board:
             print("x,y :", x, y, "h,w :", h, w,"i,j :", i, j)
             piece.print_shape()
 
+    def clear_rows(self):
+            new_board = []
+            rows_removed = 0
+
+            for row in self.board:
+                if all(cell["fill"] for cell in row):  
+                    rows_removed += 1
+                else:
+                    new_board.append(row)
+            # Add empty rows to top 
+            empty_row = [{"color": "white", "fill": False} for _ in range(self.width)]
+            new_rows = [empty_row] * rows_removed
+
+            self.board = new_rows + new_board
+            return rows_removed
+
     def remove_piece(self, piece: Piece):
         shape = piece.get_shape()
         x, y = piece.get_position()
