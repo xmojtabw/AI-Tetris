@@ -1,8 +1,7 @@
 import pygame
 import pygame.examples
 from board import Board 
-# Initialize Pygame
-# pygame.init()
+
 
 
 # Screen settings
@@ -12,8 +11,6 @@ SIDE_PANEL_WIDTH = SCREEN_WIDTH - BOARD_WIDTH  # Width of the side panel
 CELL_SIZE = 30  # Size of each block in pixels
 
 # Colors
-# BOARD_X = 50
-# BOARD_Y = 50
 BLACK = (0, 0, 0)
 GRAY = (128,128,128)
 WHITE = (255, 255, 255)
@@ -21,17 +18,14 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
-# # Create the screen
-# screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-# pygame.display.set_caption("Tetris")
-
-# # Clock for controlling frame rate
-# clock = pygame.time.Clock()
 screen = None
 clock = None
+
+
 def init_the_screen():
     global screen
     global clock
+    # Initialize Pygame
     pygame.init()
 
     # Create the screen
@@ -63,44 +57,9 @@ def draw_board(screen,board:Board):
                     (x, y, CELL_SIZE, CELL_SIZE),
                 )
                 pygame.draw.rect(screen, BLACK, (x, y, CELL_SIZE, CELL_SIZE), 1)
-            # else:
-            #     pygame.draw.rect(
-            #         screen,
-            #         WHITE,
-            #         (x, y, CELL_SIZE, CELL_SIZE),
-            #     )
-            #     pygame.draw.rect(screen, BLACK, (x, y, CELL_SIZE, CELL_SIZE), 1)
-# Draw a piece
-# def draw_piece(screen, piece):
-#     for row_idx, row in enumerate(piece["shape"]):
-#         for col_idx, cell in enumerate(row):
-#             if cell == "X":  # Draw only filled cells
-#                 x = piece["x"] + col_idx * CELL_SIZE
-#                 y = piece["y"] + row_idx * CELL_SIZE
-#                 pygame.draw.rect(
-#                     screen,
-#                     piece["color"],
-#                     (x, y, CELL_SIZE, CELL_SIZE),
-#                 )
-#                 pygame.draw.rect(screen, BLACK, (x, y, CELL_SIZE, CELL_SIZE), 1)
-
-# Example Tetris piece
-# piece = {
-#     "x": 120,  # X-coordinate of the top-left corner
-#     "y": 50,   # Y-coordinate of the top-left corner
-#     "color": BLUE,
-#     "shape": [
-#         ["X", "X", "X"],
-#         [".", "X", "."],
-#     ],
-# }
 
 # Draw the labels on the side panel
 def draw_labels(screen, labels):
-    # Title
-    # title_text = pygame.font.Font(None,20).render("Tetris", True, WHITE)
-    # screen.blit(title_text, (BOARD_WIDTH + 20, 20))
-
     # Score
     score_text = pygame.font.Font(None,20).render(f"Score: {labels['score']}", True, WHITE)
     screen.blit(score_text, (BOARD_WIDTH + 20, 80))
@@ -111,8 +70,6 @@ def draw_labels(screen, labels):
 
     lines_text = pygame.font.Font(None,25).render(f"Evaluation: {labels['eval']}", True, WHITE)
     screen.blit(lines_text, (BOARD_WIDTH + 20, 120))
-    # lines_value = pygame.font.Font(None,20).render("0", True, WHITE)  # Example value
-    # screen.blit(lines_value, (BOARD_WIDTH + 20, 180))
 
 # Draw the menu panel
 def draw_panel(screen):
@@ -147,7 +104,7 @@ def display(board : Board,labels):
     pygame.display.flip()
 
     # Control frame rate
-    clock.tick(30)
+    clock.tick(60)
     if quit:
         pygame.quit()
         return False

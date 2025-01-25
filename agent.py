@@ -1,6 +1,4 @@
 import board as B 
-import piece as P
-import genetic as G 
 import evaluation as E
 from copy import deepcopy, copy
 import random as r
@@ -20,16 +18,11 @@ class Agent():
         self.optimize = optimize
         self.best = None
         self.ev = E.Evaluation()
-        # # self.fitness = E.Fitness(self.board)
-        # self.mutate = G.Mutate(self.board)
-        # self.genetic = G.Genetic(self.population, self.fitness, self.mutate, self.mutation_rate)
 
     def _generate_population(self):
         return  [[copy(self.board.random_placement(i.rotate(r.randint(0,3)))) for i in self.answer_format] for _ in range(self.population_size)]
 
     def fitness(self,individual):
-        
-            
         c = 0 
         for p in individual:
             piece = copy(p)
@@ -51,12 +44,6 @@ class Agent():
     def revert_the_board(self,lines_changed):
         for i in range(lines_changed):
             self.board.board[i] = [copy(_) for _ in self.board_format.board[i]]
-        # for i in self.board.board:
-        #     if any(cell["fill"] for cell in i):
-        #         print("look here didn't revert!")
-
-
-
 
 
     def mutate(self,individual):
@@ -69,8 +56,8 @@ class Agent():
         best_fitness = float('-inf')
         while count:
             weights = [self.fitness(ind) for ind in self.population]
-            # print(f"{count}: weights:", sum(weights)/self.population_size)
-            # print(f"{count}: max:", max(weights))
+            print(f"{count}: weights:", sum(weights)/self.population_size)
+            print(f"{count}: max:", max(weights))
             new_population = []
             for _ in range(self.population_size):
                 parent1 , parent2 = r.choices(self.population, weights=weights, k=2) # weghted random choice
@@ -83,12 +70,7 @@ class Agent():
                 if child_fitness > best_fitness:
                     best_fitness = child_fitness
                     self.best = [copy(i) for i in child]
-                    print(f"{_}: best changed to {best_fitness}")
-                    # b = deepcopy(self.board)
-                    # for p in self.best:
-                    #     b.put_piece(p)
-                    #     b.clear_rows()
-                    # b.print_board()
+                    print(f"best changed to {best_fitness}")
             self.population = new_population
             count -=1
     

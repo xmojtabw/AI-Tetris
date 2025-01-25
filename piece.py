@@ -171,9 +171,37 @@ class I_piece(Piece):
         )
 
 
+class P_piece(Piece):
+    def __init__(self, color="white", position=(0, 0), angle=0):
+        shape = [["X", "X", "X"], [".", "X", "."], [".", ".", "."]]
+        super().__init__(
+            shape=shape,
+            color=color,
+            name="P piece",
+            position=position,
+            angle=angle,
+            h=2,
+            w=3,
+        )
+
+
+class S_piece(Piece):
+    def __init__(self, color="white", position=(0, 0), angle=0):
+        shape = [["X", "X"], ["X", "X"]]
+        super().__init__(
+            shape=shape,
+            color=color,
+            name="S piece",
+            position=position,
+            angle=angle,
+            h=2,
+            w=2,
+        )
+
+
 def PieceGenerator(count):
-    template_pieces = [I_piece, L_piece]
-    colors = ["blue", "red", "green", "yellow", "purple", "orange", "pink", "brown"]
+    template_pieces = [I_piece, L_piece,S_piece,P_piece]
+    colors = ["blue", "red", "green", "yellow", "purple", "orange", "pink", "brown", "cyan","white"]
     for i in range(count):
         r = random.randint(0, len(template_pieces) - 1)
         color = random.randint(0, len(colors) - 1)
