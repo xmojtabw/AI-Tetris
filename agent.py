@@ -75,7 +75,7 @@ class Agent():
             count -=1
     
     def crossover(self,parent1,parent2):
-        c = r.randint(0,self.population_size)
+        c = r.randint(0,len(parent1))
         return parent1[:c] + parent2[c:] 
     
     def run(self,count):
