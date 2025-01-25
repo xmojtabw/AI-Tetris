@@ -21,8 +21,6 @@ class Evaluation:
                 h-=1
             else:
                 break
-        if h==0:
-            return 0.001
         return h
     
     def calculate_aggregate_height(self, board):

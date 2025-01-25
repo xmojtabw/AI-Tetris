@@ -44,6 +44,8 @@ class Agent():
         #return  c
         v = self.ev.evaluate(self.board)
         self.revert_the_board(self.board.height - v) # notice !! this works by the value of v which is the maximum height of the pieces
+        if v==0:
+            v=0.001
         return v  * c
     
     def revert_the_board(self,lines_changed):
@@ -67,8 +69,8 @@ class Agent():
         best_fitness = float('-inf')
         while count:
             weights = [self.fitness(ind) for ind in self.population]
-            print("weights:", sum(weights)/self.population_size)
-            print ("max:", max(weights))
+            # print(f"{count}: weights:", sum(weights)/self.population_size)
+            # print(f"{count}: max:", max(weights))
             new_population = []
             for _ in range(self.population_size):
                 parent1 , parent2 = r.choices(self.population, weights=weights, k=2) # weghted random choice
@@ -81,7 +83,7 @@ class Agent():
                 if child_fitness > best_fitness:
                     best_fitness = child_fitness
                     self.best = [copy(i) for i in child]
-                    print(f"best changed to {best_fitness}")
+                    print(f"{_}: best changed to {best_fitness}")
                     # b = deepcopy(self.board)
                     # for p in self.best:
                     #     b.put_piece(p)

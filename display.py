@@ -2,7 +2,7 @@ import pygame
 import pygame.examples
 from board import Board 
 # Initialize Pygame
-pygame.init()
+# pygame.init()
 
 
 # Screen settings
@@ -21,12 +21,25 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
-# Create the screen
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Tetris")
+# # Create the screen
+# screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+# pygame.display.set_caption("Tetris")
 
-# Clock for controlling frame rate
-clock = pygame.time.Clock()
+# # Clock for controlling frame rate
+# clock = pygame.time.Clock()
+screen = None
+clock = None
+def init_the_screen():
+    global screen
+    global clock
+    pygame.init()
+
+    # Create the screen
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Tetris")
+
+    # Clock for controlling frame rate
+    clock = pygame.time.Clock()
 
 # Draw the board background
 def draw_board_background(screen):
