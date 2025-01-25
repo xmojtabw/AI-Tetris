@@ -9,12 +9,15 @@ class Agent():
     def __init__(self, board_format : B.Board,
                 population_size=100,
                 mutation_rate=0.01,
-                answer_format =[]):
-        self.board = board_format
+                answer_format =[],
+                optimize = False ):
+        self.board = deepcopy(board_format)
+        self.board_format = deepcopy(board_format)
         self.answer_format = answer_format
         self.population_size = population_size
         self.mutation_rate = mutation_rate
         self.population = self._generate_population()
+        self.optimize = optimize
         self.best = None
         self.ev = E.Evaluation()
         # # self.fitness = E.Fitness(self.board)
@@ -25,19 +28,33 @@ class Agent():
         return  [[copy(self.board.random_placement(i.rotate(r.randint(0,3)))) for i in self.answer_format] for _ in range(self.population_size)]
 
     def fitness(self,individual):
+        
+            
         c = 0 
         for p in individual:
             piece = copy(p)
-            path , cl = self.board.put_piece(piece)
+            path , cl = self.board.put_piece(piece,self.optimize)
             if not path:
                 break
             if cl:
                 self.board.clear_rows()
             c+=1
+        if c==0:
+            c=0.001
         #return  c
         v = self.ev.evaluate(self.board)
-        self.board.clean()
+        self.revert_the_board(self.board.height - v) # notice !! this works by the value of v which is the maximum height of the pieces
         return v  * c
+    
+    def revert_the_board(self,lines_changed):
+        for i in range(lines_changed):
+            self.board.board[i] = [copy(_) for _ in self.board_format.board[i]]
+        # for i in self.board.board:
+        #     if any(cell["fill"] for cell in i):
+        #         print("look here didn't revert!")
+
+
+
 
 
     def mutate(self,individual):
@@ -53,7 +70,7 @@ class Agent():
             print("weights:", sum(weights)/self.population_size)
             print ("max:", max(weights))
             new_population = []
-            for i in range(self.population_size):
+            for _ in range(self.population_size):
                 parent1 , parent2 = r.choices(self.population, weights=weights, k=2) # weghted random choice
                 child = [copy(_) for _ in self.crossover(parent1,parent2)]
                 if r.random() < self.mutation_rate:

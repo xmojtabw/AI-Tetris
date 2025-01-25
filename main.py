@@ -5,7 +5,7 @@ from evaluation import Evaluation as ev
 from agent import Agent
 import time
 
-
+OPTIMIZE = True
 # p1 = piece.L_piece(color="yellow", position=(0, 0))
 # p2 = piece.I_piece(color="red", position=(1, 1))
 # p3 = piece.L_piece(color="blue", position=(0, 0), angle=3)
@@ -21,6 +21,23 @@ pt = piece.I_piece(color="yellow", position=(19, 4), angle=0)
 # pt = piece.L_piece(color="yellow", position=(18, 1),angle=0)
 # p1.print_shape()
 
+pa1 = piece.I_piece(color="yellow", position=(17, 6), angle=1)
+pa2 = piece.I_piece(color="red", position=(19, 6), angle=0)
+pa3 = piece.I_piece(color="brown", position=(19, 7), angle=0)
+
+pb1 = piece.I_piece(color="yellow", position=(17, 3), angle=1)
+pb2 = piece.I_piece(color="red", position=(19, 1), angle=0)
+pb3 = piece.I_piece(color="brown", position=(19, 0), angle=0)
+
+pc1 = piece.I_piece(color="yellow", position=(17, 3), angle=1)
+pc2 = piece.I_piece(color="red", position=(19, 1), angle=0)
+pc3 = piece.L_piece(color="brown", position=(18, 0), angle=0)
+
+pa4 = piece.L_piece(color="blue", position=(17, 1), angle=3)
+pa5 = piece.L_piece(color="orange", position=(17, 8), angle=3)
+pa6 = piece.L_piece(color="green", position=(17, 8), angle=1)
+pa7 = piece.L_piece(color="purple", position=(17, 1), angle=3)
+pat = piece.I_piece(color="yellow", position=(19, 4), angle=0)
 # p1.rotate(1).print_shape()
 # p1.rotate(1).print_shape()
 # p1.rotate(1).print_shape()
@@ -50,8 +67,10 @@ main_board = Board(width=10, height=20)
 #pieces = [p1, p2, p3,pt, p4]  # , p5,p6,p7,pt]  # ,p4]
 #print(len(pieces))
 #pieces = [p1, p2, p3 , p4,p5]
-pieces = [p for p in piece.PieceGenerator(5)]
-
+pieces = [p for p in piece.PieceGenerator(10)]
+#pieces = [pb1,pb2,pb3]
+#pieces = [pa1,pa2,pa3]
+#pieces = [pc1,pc2,pc3]
 
 cleared_lines = 0
 pieces_putted = 0
@@ -59,11 +78,12 @@ labels = {"score": 0, "lines": 0, "eval": 0}
 e = ev()
 ag = Agent(
     board_format=main_board,
-    population_size=350,
+    population_size=200,
     mutation_rate=0.01,
     answer_format=pieces,
+    optimize=OPTIMIZE
 )
-ans = ag.run(40)
+ans = ag.run(100)
 if __name__ == "__main__":
     runnig = True
     while runnig:
@@ -80,18 +100,18 @@ if __name__ == "__main__":
             # p.print_shape()
             # print(p.get_position(),p.get_size())
             # print("---")
-            actions = main_board.get_actions(p)
+            actions = main_board.get_actions(p,optimize=OPTIMIZE)
             for b in main_board.update_board_frames(p, actions):
                 runnig = display.display(b, labels)
                 time.sleep(0.18)
                 if first_time:
                     time.sleep(0.6)
                     first_time = False
-                b.print_board()
+                #b.print_board()
                 print("---")
                 if not runnig:
                     exit(0)
-            main_board.put_piece(p)
+            main_board.put_piece(p,optimize=OPTIMIZE)
             labels["score"] += 1
             labels["lines"] += main_board.clear_rows()
             labels["eval"] = e.evaluate(main_board)

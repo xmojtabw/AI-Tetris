@@ -56,22 +56,38 @@ class Board:
                 if shape[i][j] == "X":
                     self.board[i + x][j + y] = {"color": "white", "fill": False}
 
-    def put_piece(self, piece: Piece, debug=False):
+    def put_piece(self, piece: Piece, optimize=True):
         def check_for_line(x1,x2):
             for i in range(x1,x2):
                 if all(cell["fill"] for cell in self.board[i]):
                     return True
             return False
-        for o in self.find_options(piece):
-            pp_problem = PuttingPiece(piece=o, board=self)
-            ans = bfs.BFS(problem=pp_problem)
-            if not ans:
-                continue
-            else:
-                path = bfs.trace_back(node=ans)
-                self.add_piece(o)
-                c = check_for_line(o.get_position()[0],o.get_position()[0]+o.get_size()[0])
-                return path,c 
+        if optimize:
+            for o in self.find_options(piece):
+                pp_problem = PuttingPiece(piece=o, board=self)
+                ans = bfs.BFS(problem=pp_problem)
+                if not ans:
+                    continue
+                else:
+                    path = bfs.trace_back(node=ans)
+                    self.add_piece(o)
+                    c = check_for_line(o.get_position()[0],o.get_position()[0]+o.get_size()[0])
+                    return path,c 
+        else:
+            x0 = piece.get_position()[0]
+            opt = self.find_first_option(piece)
+            if opt:
+                self.add_piece(opt)
+                x, y = opt.get_position()
+                h ,w = opt.get_size()
+                c = check_for_line(x,x+h)
+                return (x0-x)*['down'] , opt 
+            # path = (self.height - x) *['down'] 
+            # piece.set_position((x,y))
+            # self.add_piece(piece)
+            # c = check_for_line(x,x+h)
+
+        return None, False
 
     # def put_piece(self, piece: Piece, debug=False):
     #     evaluator = Evaluation()
@@ -108,13 +124,29 @@ class Board:
     #     return None
 
     def find_options(self, piece: Piece):
-        h = self.height - piece.get_size()[0]
+        x ,y = piece.get_position()
+        h , w = piece.get_size()
+        safe_h = self.height - h
         p = piece
-        y = p.position[1]
-        for i in range(h):
+        #y = p.position[1]
+        for i in range(safe_h):
             p.set_position((i, y))
             if not self.has_colision(p):
                 yield p
+
+    
+    def find_first_option(self,piece:Piece):
+        x, y = piece.get_position()
+        h , w = piece.get_size()
+        safe_h = self.height - h
+        p = piece
+        for i in range(safe_h,-1,-1):
+            p.set_position((i, y))
+            if self.has_colision(p):
+                return p.set_position((i+1,y))
+        else:
+            return p.set_position((0,y))
+
 
     def print_board(self):
         b = self.board[::-1]
@@ -143,7 +175,7 @@ class Board:
             p.rotate(1)
             nx,ny =p.get_position()
             nh , nw = p.get_size()
-            if (nx >= 0 and nx + nh < self.height) and (ny >= 0 and ny + nw < self.width):
+            if (nx >= 0 and nx + nh <= self.height) and (ny >= 0 and ny + nw <= self.width):
                 if not self.has_colision(p) :
                     if nh > nw:
                         if self.has_space_to_rotate(nx, ny, nh, nh):
@@ -155,7 +187,7 @@ class Board:
             p.rotate(3)
             nx,ny =p.get_position()
             nh , nw = p.get_size()
-            if (nx >= 0 and nx + nh < self.height) and (ny >= 0 and ny + nw < self.width):
+            if (nx >= 0 and nx + nh <= self.height) and (ny >= 0 and ny + nw <= self.width):
                 if not self.has_colision(p) :
                     if nh > nw:
                         if self.has_space_to_rotate(nx, ny, nh, nh):
@@ -203,31 +235,32 @@ class Board:
             yield board
             board.remove_piece(tmp_piece)
 
-    def get_actions(self, piece: Piece):
+    def get_actions(self, piece: Piece, optimize=True):
         tmp_board = deepcopy(self)
         tmp_piece = deepcopy(piece)
         x , y = tmp_piece.get_position()
-        path = tmp_board.put_piece(tmp_piece)[0]
-        path = [p[1] for p in path ] # separating actions
-        if not path:
+        path = tmp_board.put_piece(tmp_piece,optimize)[0]
+        if not path or not path[0]:
             return False #can't put the new piece
+        path = [p[1] for p in path ] # separating actions
         r_move = path.count("right")
         l_move = path.count("left")
         r_rotate = path.count("rotate to right")
         l_rotate = path.count("rotate to left")
         d = r_move - l_move
-        if d < 0:
-            d *= -1
-            actions = d * ["left"]
-        else:
-            actions = d * ["right"]
-
         r = r_rotate - l_rotate
         if r < 0:
             r *= -1
-            actions += r * ["rotate to left"]
+            actions = r * ["rotate to left"]
         else:
-            actions += r * ["rotate to right"]
+            actions = r * ["rotate to right"]
+
+        if d < 0:
+            d *= -1
+            actions += d * ["left"]
+        else:
+            actions += d * ["right"]
+
         d_move = x - tmp_piece.get_position()[0] - path.count("down")
         actions += d_move * ["down"]
         for action in path[::-1]:
@@ -312,7 +345,7 @@ class PuttingPiece:
 
         h, w = tmp_piece.get_size()
         n_x, n_y = tmp_piece.get_position()
-        if (n_x >= 0 and n_x + h < max_x) and (n_y >= 0 and n_y + w < max_y):
+        if (n_x >= 0 and n_x + h <= max_x) and (n_y >= 0 and n_y + w <= max_y):
             if not parent.state[1].has_colision(tmp_piece):
                 next_state = (tmp_piece, parent.state[1])
             else:

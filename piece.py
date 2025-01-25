@@ -66,6 +66,7 @@ class Piece:
 
     def set_position(self, position):
         self.position = position
+        return self
 
     def get_position(self):
         return self.position

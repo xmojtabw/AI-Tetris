@@ -21,7 +21,10 @@ class Evaluation:
                 h-=1
             else:
                 break
+        if h==0:
+            return 0.001
         return h
+    
     def calculate_aggregate_height(self, board):
         """Calculate the sum of the heights of all columns."""
         heights = [self.get_column_height(board, col) for col in range(board.width)]
