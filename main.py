@@ -4,35 +4,40 @@ from board import Board
 import display
 from evaluation import Evaluation as ev
 from agent import Agent
+from sa_agent import SA_AGENT
 import time
 import multiprocessing
 from copy import deepcopy, copy
+import sys 
 
 OPTIMIZE = True
 alive = True
 
-def agent_task(queue,main_board:Board,display_ev, num_pieces=10):
+
+def SA_agent_task(queue, main_board: Board, display_ev, num_pieces=10):
     global alive
     while alive:
         pieces = [p for p in piece.PieceGenerator(num_pieces)]
-        ag = Agent(
+        sa_agent = SA_AGENT(
             board_format=main_board,
-            population_size=250,
+            population_size=100,
             mutation_rate=0.01,
             answer_format=pieces,
             optimize=OPTIMIZE
         )
-        ans = ag.run(80)
+        ans = sa_agent.run(count=80)
         queue.put(ans)
+
         for p in ans:
-            f,c = main_board.put_piece(copy(p),optimize=OPTIMIZE)
+            f, c = main_board.put_piece(copy(p), optimize=OPTIMIZE)
             if c:
                 main_board.clear_rows()
-            if not f: 
+            if not f:
                 break
         main_board.print_board()
         display_ev.set()
-        if  f == None:
+
+        if f is None:
             print("Game Over")
             alive = False
             break
@@ -114,11 +119,22 @@ def display_task(queue,main_board:Board,display_ev ):
 
 
 if __name__ == "__main__":
+    try:
+        option = sys.argv[1]
+    except IndexError:
+        print("'python main.py sa' for simulated annealing")
+        print("'python main.py gen' for genetic algorithm")
+
     main_board = Board(width=10, height=20)
     queue = multiprocessing.Queue()
     display_ev = multiprocessing.Event()
     display_ev.clear()
-    computation_process = multiprocessing.Process(target=agent_task,args=(queue,deepcopy(main_board),display_ev,10))
+    if option=="sa":
+        computation_process = multiprocessing.Process(target=agent_task,args=(queue,deepcopy(main_board),display_ev,10))
+    else:
+        computation_process = multiprocessing.Process(
+            target=SA_agent_task, args=(queue, deepcopy(main_board), display_ev, 10))
+
     display_process = multiprocessing.Process(
         target=display_task, args=(queue, deepcopy(main_board), display_ev))
     display_process.start()
