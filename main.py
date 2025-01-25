@@ -129,7 +129,8 @@ if __name__ == "__main__":
     queue = multiprocessing.Queue()
     display_ev = multiprocessing.Event()
     display_ev.clear()
-    if option=="sa":
+    print(option)
+    if option=="gen":
         computation_process = multiprocessing.Process(target=agent_task,args=(queue,deepcopy(main_board),display_ev,10))
     else:
         computation_process = multiprocessing.Process(
