@@ -27,7 +27,7 @@ class Board:
                             "fill": True,
                         }
         except IndexError:
-            print("index error")
+            print("index error at add piece")
             print("x,y :", x, y, "h,w :", h, w,"i,j :", i, j)
             piece.print_shape()
 
@@ -41,8 +41,9 @@ class Board:
                 else:
                     new_board.append(row)
             # Add empty rows to top 
-            empty_row = [{"color": "white", "fill": False} for _ in range(self.width)]
-            new_rows = [empty_row] * rows_removed
+            new_rows = [[{"color": "white", "fill": False}
+                                    for _ in range(self.width)] for _ in range(rows_removed)]
+
 
             self.board = new_board + new_rows
             return rows_removed
@@ -81,7 +82,7 @@ class Board:
                 x, y = opt.get_position()
                 h ,w = opt.get_size()
                 c = check_for_line(x,x+h)
-                return (x0-x)*['down'] , opt 
+                return (x0-x)*['down'] , c  
 
         return None, False
 
@@ -105,7 +106,10 @@ class Board:
         for i in range(safe_h,-1,-1):
             p.set_position((i, y))
             if self.has_colision(p):
-                return p.set_position((i+1,y))
+                if i == safe_h:
+                    return False # there isn't any free space
+                else:
+                    return p.set_position((i+1,y))
         else:
             return p.set_position((0,y))
 

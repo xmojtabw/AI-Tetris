@@ -11,21 +11,28 @@ from copy import deepcopy, copy
 import sys 
 
 OPTIMIZE = True
-alive = True
+GEN_POPULATION_SIZE = 250
+GEN_MUTATION_RATE = 0.01
+GEN_NUM_PIECES = 10
+GEN_RUN_COUNT = 80
+
+SA_POPULATION_SIZE = 150
+SA_MUTATION_RATE = 0.01
+SA_NUM_PIECES = 10
+SA_RUN_COUNT = 80
 
 
-def SA_agent_task(queue, main_board: Board, display_ev, num_pieces=10):
-    global alive
-    while alive:
+def SA_agent_task(queue, main_board: Board, alive, num_pieces=10):
+    while alive.value:
         pieces = [p for p in piece.PieceGenerator(num_pieces)]
         sa_agent = SA_AGENT(
             board_format=main_board,
-            population_size=100,
-            mutation_rate=0.01,
+            population_size=SA_POPULATION_SIZE,
+            mutation_rate=SA_MUTATION_RATE,
             answer_format=pieces,
             optimize=OPTIMIZE
         )
-        ans = sa_agent.run(count=80)
+        ans = sa_agent.run(count=SA_RUN_COUNT)
         queue.put(ans)
 
         for p in ans:
@@ -35,55 +42,74 @@ def SA_agent_task(queue, main_board: Board, display_ev, num_pieces=10):
             if not f:
                 break
         main_board.print_board()
-        display_ev.set()
 
         if f is None:
             print("Game Over")
-            alive = False
+            alive.value = False
+            queue.put("finished")
             break
 
 
 
-def agent_task(queue, main_board: Board, display_ev, num_pieces=10):
-    global alive
-    while alive:
+def agent_task(queue, main_board: Board, alive, num_pieces=10):
+    while alive.value:
         pieces = [p for p in piece.PieceGenerator(num_pieces)]
         ag = Agent(
             board_format=main_board,
-            population_size=250,
-            mutation_rate=0.01,
+            population_size=GEN_POPULATION_SIZE,
+            mutation_rate=GEN_MUTATION_RATE,
             answer_format=pieces,
             optimize=OPTIMIZE
         )
-        ans = ag.run(80)  
+        ans = ag.run(count=GEN_RUN_COUNT)  
         queue.put(ans)
         for p in ans:
             f, c = main_board.put_piece(copy(p), optimize=OPTIMIZE)
+            # main_board.print_board()
+            # print("---")
             if c:
                 main_board.clear_rows()
             if not f:
                 break
-        main_board.print_board()
-        display_ev.set()
+        
         if f is None:
             print("Game Over")
-            alive = False
+            alive.value = False
+            queue.put("finished")
             break
 
 
-def display_task(queue,main_board:Board,display_ev ):
-    labels = {"score": 0, "lines": 0, "eval": 0}
+def display_task(queue,main_board:Board,alive ):
+    def display_board(board,labels,count):
+        for _ in range(count):
+            runnig = display.display(board,labels)
+            time.sleep(0.02)
+            if not runnig:
+                return False
+        return True
+        
     runnig = True
-    global alive
-    e = ev()
+    labels = {"score": 0, "lines": 0, "eval": 0 , "wait":"Please wait ..."}
+    e = ev() # evaluator
     display.init_the_screen()
     while runnig:
-        if queue.empty():
-            if not alive:
+        while queue.empty():
+            if alive.value:
+                labels["wait"] = "Plese wait ..."
+            else:
+                labels["wait"] = "finished"
+                runnig = False
                 break
-            display_ev.wait()
+            runnig = display_board(main_board,labels,10)
+            if not runnig:
+                alive.value = False
+                break
+    
         ans = queue.get()
-        display_ev.clear()
+        if ans =="finished":
+            break
+
+        labels ["wait"] = False
         for p in ans:
             first_time = True
             # print("-- next shape:")
@@ -91,25 +117,27 @@ def display_task(queue,main_board:Board,display_ev ):
             # print(p.get_position(),p.get_size())
             # print("---")
             actions = main_board.get_actions(p,optimize=OPTIMIZE)
-            if not actions:
+            if not actions or not runnig:
                 break
             for b in main_board.update_board_frames(p, actions):
                 runnig = display.display(b, labels)
-                time.sleep(0.3)
+                display_board(board=b,labels=labels,count=5)
                 if first_time:
-                    time.sleep(0.7)
+                    runnig = display_board(board=b,labels=labels,count=10)
                     first_time = False
                 # b.print_board()
                 # print("---")
                 if not runnig:
-                    alive = False
+                    alive.value = False
                     break
             main_board.put_piece(p,optimize=OPTIMIZE)
             labels["score"] += 1
             labels["lines"] += main_board.clear_rows()
             labels["eval"] = e.evaluate(main_board)
         
-    alive = False
+    alive.value = False
+    runnig = True
+    labels["wait"]= "finished"
     print("finished")
     print("Count of cleared lines ", labels["lines"])
     while runnig:
@@ -124,20 +152,23 @@ if __name__ == "__main__":
     except IndexError:
         print("'python main.py sa' for simulated annealing")
         print("'python main.py gen' for genetic algorithm")
+        exit(1)
 
     main_board = Board(width=10, height=20)
     queue = multiprocessing.Queue()
-    display_ev = multiprocessing.Event()
-    display_ev.clear()
+    alive = multiprocessing.Value('b', True) 
+
     print(option)
     if option=="gen":
-        computation_process = multiprocessing.Process(target=agent_task,args=(queue,deepcopy(main_board),display_ev,10))
+        computation_process = multiprocessing.Process(target=agent_task,args=(queue,deepcopy(main_board),alive,10))
     else:
         computation_process = multiprocessing.Process(
-            target=SA_agent_task, args=(queue, deepcopy(main_board), display_ev, 10))
+            target=SA_agent_task, args=(queue, deepcopy(main_board), alive, 10))
 
     display_process = multiprocessing.Process(
-        target=display_task, args=(queue, deepcopy(main_board), display_ev))
+        target=display_task, args=(queue, deepcopy(main_board), alive))
+    
+
     display_process.start()
     computation_process.start()
 

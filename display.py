@@ -71,6 +71,11 @@ def draw_labels(screen, labels):
     lines_text = pygame.font.Font(None,25).render(f"Evaluation: {labels['eval']}", True, WHITE)
     screen.blit(lines_text, (BOARD_WIDTH + 20, 120))
 
+    # wait ... 
+    if labels['wait']:
+        lines_text = pygame.font.Font(None, 25).render(f"{labels['wait']}", True, WHITE)
+        screen.blit(lines_text, (BOARD_WIDTH + 20, 140))
+
 # Draw the menu panel
 def draw_panel(screen):
     menu_rect = pygame.Rect(BOARD_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
@@ -84,7 +89,7 @@ def draw_panel(screen):
 
 
 # Main game loop
-def display(board : Board,labels):
+def display(board : Board,labels=None):
     quit = False
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -104,7 +109,7 @@ def display(board : Board,labels):
     pygame.display.flip()
 
     # Control frame rate
-    clock.tick(60)
+    clock.tick(50)
     if quit:
         pygame.quit()
         return False

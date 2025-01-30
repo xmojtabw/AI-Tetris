@@ -120,7 +120,7 @@ class Piece:
         return aligned_shape
 
     def print_shape(self):
-        for i in self.shapes[self.angle]:
+        for i in self.shapes[self.angle][::-1]:
             print("".join(i))
 
     def set_angle(self, angle):

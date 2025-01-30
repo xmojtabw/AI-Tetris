@@ -60,7 +60,7 @@ class Agent():
             print(f"{count}: max:", max(weights))
             new_population = []
             for _ in range(self.population_size):
-                parent1 , parent2 = r.choices(self.population, weights=weights, k=2) # weghted random choice
+                parent1 , parent2 = r.choices(self.population, weights=weights, k=2) # weighted random choice
                 child = [copy(_) for _ in self.crossover(parent1,parent2)]
                 if r.random() < self.mutation_rate:
                     self.mutate(child)
